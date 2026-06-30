@@ -1,0 +1,23 @@
+{
+  "name": "tyrex-ksh-md",
+  "version": "1.0.0",
+  "description": "TYREX_KSH MD Pair Code Login System",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "tyrex",
+    "pair",
+    "whatsapp",
+    "bot"
+  ],
+  "author": "TYREX_KSH MD",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1"
+  }
+}
