@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
@@ -8,49 +7,45 @@ const bodyParser = require("body-parser");
 const path = require("path");
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Session store using MongoDB (important for Heroku)
+// Session
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "tyrex_ksh_secret_key",
+    secret: process.env.SESSION_SECRET || "tyrex_secret",
     resave: false,
     saveUninitialized: false,
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URL,
-      touchAfter: 24 * 3600, // lazy session update
     }),
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
-    },
   })
 );
 
-// -------------------- DATABASE --------------------
+// Database
 mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+  .connect(process.env.MONGO_URL)
+  .then(() => {
+    console.log("✅ MongoDB Connected");
+    createDefaultAdmin();
   })
-  .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB connection error:", err));
+  .catch((err) => console.error("❌ DB Error:", err));
 
-// -------------------- MODELS --------------------
+// User Model
 const UserSchema = new mongoose.Schema({
-  username: { type: String, unique: true, required: true, trim: true },
+  username: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   role: { type: String, default: "user" },
   paid: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now },
 });
 
 const User = mongoose.model("User", UserSchema);
 
+// Payment Model
 const PaymentSchema = new mongoose.Schema({
   user: { type: String, required: true },
   amount: { type: Number, default: 2000 },
@@ -60,7 +55,40 @@ const PaymentSchema = new mongoose.Schema({
 
 const Payment = mongoose.model("Payment", PaymentSchema);
 
-// -------------------- AUTH MIDDLEWARE --------------------
+// Create Admin
+async function createDefaultAdmin() {
+  try {
+    const adminExists = await User.findOne({ role: "admin" });
+    if (!adminExists) {
+      const hashedPassword = await bcrypt.hash("admin123", 10);
+      const admin = new User({
+        username: "admin",
+        password: hashedPassword,
+        role: "admin",
+        paid: true,
+      });
+      await admin.save();
+      console.log("✅ Admin created: admin / admin123");
+    }
+
+    const tyrexExists = await User.findOne({ username: "tyrex2005" });
+    if (!tyrexExists) {
+      const hashedPassword = await bcrypt.hash("2005", 10);
+      const user = new User({
+        username: "tyrex2005",
+        password: hashedPassword,
+        role: "admin",
+        paid: true,
+      });
+      await user.save();
+      console.log("✅ User created: tyrex2005 / 2005");
+    }
+  } catch (error) {
+    console.error("Error creating admin:", error);
+  }
+}
+
+// Auth Middleware
 function auth(req, res, next) {
   if (req.session.user) return next();
   res.redirect("/login.html");
@@ -71,46 +99,14 @@ function admin(req, res, next) {
   res.redirect("/login.html");
 }
 
-// -------------------- ROUTES --------------------
+// Routes
 
-// 1. ADD USER
-app.post("/add-user", async (req, res) => {
-  try {
-    const { username, password } = req.body;
-    if (!username || !password) {
-      return res.status(400).json({ success: false, message: "Username and password required" });
-    }
-
-    const existing = await User.findOne({ username: username.trim() });
-    if (existing) {
-      return res.status(400).json({ success: false, message: "Username already exists" });
-    }
-
-    const hash = await bcrypt.hash(password, 10);
-    const user = new User({
-      username: username.trim(),
-      password: hash,
-      role: "user",
-      paid: false,
-    });
-    await user.save();
-
-    res.json({ success: true, message: "User created successfully" });
-  } catch (err) {
-    console.error("Add user error:", err);
-    res.status(500).json({ success: false, message: "Server error: " + err.message });
-  }
-});
-
-// 2. LOGIN
+// Login
 app.post("/login", async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) {
-      return res.json({ success: false, message: "Please fill in all fields" });
-    }
+    const user = await User.findOne({ username });
 
-    const user = await User.findOne({ username: username.trim() });
     if (!user) {
       return res.json({ success: false, message: "User not found" });
     }
@@ -132,116 +128,101 @@ app.post("/login", async (req, res) => {
 
     res.json({ success: true, redirect: "/dashboard.html" });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.json({ success: false, message: "Server error" });
   }
 });
 
-// 3. PAYMENT REQUEST
+// Add User
+app.post("/add-user", async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    const existing = await User.findOne({ username });
+    if (existing) {
+      return res.json({ success: false, message: "User already exists" });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+    const user = new User({ username, password: hash, role: "user", paid: false });
+    await user.save();
+
+    res.json({ success: true, message: "User created" });
+  } catch (err) {
+    res.json({ success: false, message: "Server error" });
+  }
+});
+
+// Payment Request
 app.post("/pay-request", async (req, res) => {
   try {
     const user = req.session.user;
     if (!user) {
-      return res.status(401).json({ success: false, msg: "Please login first" });
+      return res.status(401).json({ success: false, msg: "Please login" });
     }
 
     const existing = await Payment.findOne({ user: user.username, status: "pending" });
     if (existing) {
-      return res.json({ success: true, msg: "Payment already pending, please wait for approval" });
+      return res.json({ success: true, msg: "Payment already pending" });
     }
 
-    await Payment.create({
-      user: user.username,
-      amount: 2000,
-      status: "pending",
-    });
-
-    res.json({ success: true, msg: "Payment request sent! Waiting for admin approval." });
+    await Payment.create({ user: user.username, amount: 2000, status: "pending" });
+    res.json({ success: true, msg: "Payment request sent" });
   } catch (err) {
-    console.error("Pay-request error:", err);
-    res.status(500).json({ success: false, msg: "Server error" });
+    res.json({ success: false, msg: "Server error" });
   }
 });
 
-// 4. GET PAYMENTS (admin only)
+// Get Payments (admin only)
 app.get("/payments", admin, async (req, res) => {
   try {
     const payments = await Payment.find().sort({ date: -1 });
     res.json(payments);
   } catch (err) {
-    console.error("Get payments error:", err);
-    res.status(500).json([]);
+    res.json([]);
   }
 });
 
-// 5. APPROVE PAYMENT (admin only)
+// Approve Payment (admin only)
 app.post("/approve", admin, async (req, res) => {
   try {
     const { id } = req.body;
-    if (!id) {
-      return res.status(400).json({ success: false, message: "Payment ID required" });
-    }
-
     const payment = await Payment.findById(id);
     if (!payment) {
-      return res.status(404).json({ success: false, message: "Payment not found" });
-    }
-
-    if (payment.status === "approved") {
-      return res.json({ success: true, message: "Already approved" });
+      return res.json({ success: false, message: "Payment not found" });
     }
 
     payment.status = "approved";
     await payment.save();
 
-    await User.updateOne(
-      { username: payment.user },
-      { paid: true }
-    );
+    await User.updateOne({ username: payment.user }, { paid: true });
 
     res.json({ success: true, message: "Payment approved" });
   } catch (err) {
-    console.error("Approve payment error:", err);
-    res.status(500).json({ success: false, message: "Server error" });
+    res.json({ success: false, message: "Server error" });
   }
 });
 
-// 6. DASHBOARD (protected)
+// Pages
 app.get("/dashboard", auth, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
-// 7. ADMIN PANEL (admin only)
 app.get("/admin", admin, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "admin.html"));
 });
 
-// 8. PAYMENT PAGE (user only)
 app.get("/payment", auth, (req, res) => {
   res.sendFile(path.join(__dirname, "public", "payment.html"));
 });
 
-// 9. LOGOUT
 app.get("/logout", (req, res) => {
-  req.session.destroy((err) => {
-    if (err) console.error("Logout error:", err);
-    res.redirect("/login.html");
-  });
+  req.session.destroy(() => res.redirect("/login.html"));
 });
 
-// 10. ROOT
 app.get("/", (req, res) => {
   res.redirect("/login.html");
 });
 
-// -------------------- ERROR HANDLING --------------------
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
-
-// -------------------- START SERVER --------------------
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 TYREX_KSH MD running on port ${PORT}`);
+// Start Server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
 });
