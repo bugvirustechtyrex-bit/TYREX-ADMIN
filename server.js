@@ -1,120 +1,109 @@
+require("dotenv").config();
 const express = require("express");
-const bodyParser = require("body-parser");
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const session = require("express-session");
-const fs = require("fs");
+const bodyParser = require("body-parser");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
 
-// Middleware
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
 
 app.use(
   session({
-    secret: "tyrex_ksh_secret_2025",
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
   })
 );
 
-// Static files
-app.use(express.static(path.join(__dirname, "public")));
+// CONNECT DB
+mongoose.connect(process.env.MONGO_URL)
+.then(()=>console.log("MongoDB Connected"))
+.catch(err=>console.log(err));
 
-// =====================
-// USERS FUNCTIONS
-// =====================
-function getUsers() {
-  const data = fs.readFileSync("users.json");
-  return JSON.parse(data);
-}
+// USER MODEL
+const UserSchema = new mongoose.Schema({
+  username: String,
+  password: String,
+  role: { type: String, default: "user" }
+});
 
-function saveUsers(users) {
-  fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
-}
+const User = mongoose.model("User", UserSchema);
 
-// =====================
-// LOGIN
-// =====================
-app.post("/login", (req, res) => {
+// REGISTER USER (ADMIN ONLY LATER)
+app.post("/add-user", async (req,res)=>{
   const { username, password } = req.body;
-  const users = getUsers();
 
-  const user = users.find(
-    (u) => u.username === username && u.password === password
-  );
+  const hash = await bcrypt.hash(password, 10);
 
-  if (user) {
-    req.session.user = user;
-    res.json({ success: true });
-  } else {
-    res.json({ success: false, message: "Invalid username or password" });
+  const user = new User({
+    username,
+    password: hash,
+    role: "user"
+  });
+
+  await user.save();
+
+  res.json({ success:true, message:"User created" });
+});
+
+// LOGIN
+app.post("/login", async (req,res)=>{
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if(!user){
+    return res.json({ success:false, message:"User not found" });
+  }
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if(!match){
+    return res.json({ success:false, message:"Wrong password" });
+  }
+
+  req.session.user = user;
+
+  if(user.role === "admin"){
+    res.json({ success:true, redirect:"/admin.html" });
+  }else{
+    res.json({ success:true, redirect:"/dashboard.html" });
   }
 });
 
-// =====================
-// SESSION CHECK
-// =====================
-function isLoggedIn(req, res, next) {
-  if (req.session.user) {
-    next();
-  } else {
-    res.redirect("/login.html");
-  }
+// MIDDLEWARE
+function auth(req,res,next){
+  if(req.session.user) next();
+  else res.redirect("/login.html");
 }
 
-// =====================
-// DASHBOARD ROUTE
-// =====================
-app.get("/dashboard", isLoggedIn, (req, res) => {
-  res.sendFile(path.join(__dirname, "public/dashboard.html"));
+// ADMIN ONLY
+function admin(req,res,next){
+  if(req.session.user && req.session.user.role==="admin") next();
+  else res.redirect("/login.html");
+}
+
+// DASHBOARD
+app.get("/dashboard", auth, (req,res)=>{
+  res.sendFile(path.join(__dirname,"public/dashboard.html"));
 });
 
-// =====================
-// GET USER INFO
-// =====================
-app.get("/me", (req, res) => {
-  if (req.session.user) {
-    res.json(req.session.user);
-  } else {
-    res.json(null);
-  }
+// ADMIN
+app.get("/admin", admin, (req,res)=>{
+  res.sendFile(path.join(__dirname,"public/admin.html"));
 });
 
-// =====================
 // LOGOUT
-// =====================
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => {
+app.get("/logout",(req,res)=>{
+  req.session.destroy(()=>{
     res.redirect("/login.html");
   });
 });
 
-// =====================
-// ADD USER (SIMPLE ADMIN FUNCTION)
-// =====================
-app.post("/add-user", (req, res) => {
-  const { username, password } = req.body;
-
-  let users = getUsers();
-
-  const exists = users.find((u) => u.username === username);
-
-  if (exists) {
-    return res.json({ success: false, message: "User already exists" });
-  }
-
-  users.push({ username, password });
-
-  saveUsers(users);
-
-  res.json({ success: true, message: "User added successfully" });
-});
-
-// =====================
-// START SERVER
-// =====================
-app.listen(PORT, () => {
-  console.log(`TYREX_KSH MD running on http://localhost:${PORT}`);
+app.listen(process.env.PORT,()=>{
+  console.log("Server running on port "+process.env.PORT);
 });
