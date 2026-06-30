@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TYREX PAYMENT</title>
+</head>
+<body style="background:#0b0b1a;color:white;text-align:center;">
+
+<h2>PAYMENT REQUIRED</h2>
+
+<p>Amount: <b>TZS 2000</b></p>
+
+<h3>Tigo Pesa Number</h3>
+<h1>+255650583044</h1>
+
+<p>After payment click below</p>
+
+<button onclick="request()">I Have Paid</button>
+
+<p id="msg"></p>
+
+<script>
+function request(){
+fetch("/pay-request",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+userId:"TEMP_USER"
+})
+})
+.then(r=>r.json())
+.then(d=>{
+document.getElementById("msg").innerText=d.msg;
+});
+}
+</script>
+
+</body>
+</html>
