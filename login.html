@@ -1,99 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>TYREX_KSH MD | Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#020617,#0b1026);
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
-
-.box{
-width:320px;
-padding:30px;
-background:rgba(255,255,255,0.05);
-border-radius:20px;
-backdrop-filter:blur(10px);
-text-align:center;
-color:white;
-box-shadow:0 0 25px #00bfff55;
-}
-
-h2{
-color:#00d4ff;
-margin-bottom:20px;
-}
-
-input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:none;
-border-radius:10px;
-outline:none;
-}
-
-button{
-width:100%;
-padding:12px;
-background:#00bfff;
-border:none;
-border-radius:10px;
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
-
-button:hover{
-background:#00e1ff;
-}
-
-#error{
-color:red;
-margin-top:10px;
-}
-</style>
-
+<title>Login</title>
 </head>
-<body>
+<body style="background:#111;color:white;text-align:center;">
 
-<div class="box">
-<h2>TYREX_KSH LOGIN</h2>
+<h2>TYREX LOGIN</h2>
 
-<input type="text" id="username" placeholder="Username">
-<input type="password" id="password" placeholder="Password">
+<input id="username" placeholder="Username"><br><br>
+<input id="password" type="password" placeholder="Password"><br><br>
 
 <button onclick="login()">Login</button>
 
-<p id="error"></p>
-</div>
+<p id="msg"></p>
 
 <script>
 function login(){
-const username = document.getElementById("username").value;
-const password = document.getElementById("password").value;
-
-fetch("/login", {
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({ username, password })
+fetch("/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+username:document.getElementById("username").value,
+password:document.getElementById("password").value
 })
-.then(res => res.json())
-.then(data => {
-if(data.success){
-window.location.href = data.redirect;
+})
+.then(r=>r.json())
+.then(d=>{
+if(d.success){
+window.location.href=d.redirect;
 }else{
-document.getElementById("error").innerText = data.message;
+document.getElementById("msg").innerText=d.message;
 }
 });
 }
