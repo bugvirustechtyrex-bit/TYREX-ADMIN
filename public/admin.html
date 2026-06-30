@@ -1,101 +1,476 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>TYREX_KSH MD | Admin Panel</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TYREX_KSH MD | Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-background:linear-gradient(135deg,#020617,#0b1026);
-color:white;
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-.box{
-width:380px;
-padding:30px;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border-radius:20px;
-box-shadow:0 0 25px #ffcc0055;
-text-align:center;
-}
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 32px;
+            padding: 30px 25px;
+            box-shadow: 0 0 40px #ffcc0040, 0 0 80px #ffcc0020;
+            border: 1px solid rgba(255, 204, 0, 0.2);
+        }
 
-h2{
-color:#ffcc00;
-}
+        h2 {
+            color: #ffcc00;
+            text-align: center;
+            letter-spacing: 3px;
+            font-weight: 600;
+            font-size: 26px;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px #ffcc0060;
+        }
 
-input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:none;
-border-radius:10px;
-outline:none;
-}
+        .section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 20px 18px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
 
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:10px;
-background:#ffcc00;
-font-weight:bold;
-cursor:pointer;
-}
+        .section-title {
+            color: #ffcc00;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.2);
+            padding-bottom: 8px;
+        }
 
-button:hover{
-background:#ffd633;
-}
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
 
-#msg{
-margin-top:10px;
-color:#00ff95;
-}
-</style>
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            color: white;
+            font-size: 15px;
+            transition: 0.2s;
+            outline: 1px solid transparent;
+        }
+
+        input:focus {
+            outline: 1px solid #ffcc00;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 300;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: #ffcc00;
+            color: #0b0f1e;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            letter-spacing: 0.5px;
+            margin-top: 6px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #ffd633;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px #ffcc0060;
+        }
+
+        .btn:disabled {
+            background: #555;
+            color: #aaa;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .loader {
+            display: none;
+            margin-top: 12px;
+            font-size: 14px;
+            color: #00d4ff;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        #msg {
+            margin-top: 14px;
+            font-size: 14px;
+            min-height: 22px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .success {
+            color: #00ff95;
+        }
+        .error {
+            color: #ff4d6d;
+        }
+
+        /* payment list */
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .list-header .badge {
+            background: rgba(255, 204, 0, 0.15);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 13px;
+            color: #ffcc00;
+        }
+
+        .btn-small {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            color: #ffcc00;
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(4px);
+        }
+
+        .btn-small:hover {
+            background: #ffcc00;
+            color: #0b0f1e;
+            border-color: #ffcc00;
+        }
+
+        .payment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .payment-item {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            border-left: 3px solid #ffcc00;
+            transition: 0.2s;
+        }
+
+        .payment-item:hover {
+            background: rgba(255, 255, 255, 0.07);
+        }
+
+        .payment-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .payment-user {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .payment-status {
+            font-size: 13px;
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: rgba(255, 165, 0, 0.2);
+            color: #ffa500;
+        }
+
+        .status-approved {
+            background: rgba(0, 255, 149, 0.15);
+            color: #00ff95;
+        }
+
+        .payment-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-approve {
+            background: rgba(0, 255, 149, 0.12);
+            border: 1px solid rgba(0, 255, 149, 0.25);
+            color: #00ff95;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-approve:hover {
+            background: #00ff95;
+            color: #0b0f1e;
+            border-color: #00ff95;
+        }
+
+        .btn-approve:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(0, 255, 149, 0.05);
+            color: #00ff9570;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 24px 10px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+            font-style: italic;
+            border: 1px dashed rgba(255, 255, 255, 0.06);
+            border-radius: 20px;
+        }
+
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.2);
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 14px;
+            }
+            .payment-item {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .payment-actions {
+                justify-content: flex-end;
+            }
+        }
+    </style>
 </head>
-
 <body>
+<div class="container">
 
-<div class="box">
-<h2>ADMIN PANEL</h2>
+    <h2>⚡ TYREX_KSH MD</h2>
 
-<input type="text" id="username" placeholder="New Username">
-<input type="text" id="password" placeholder="New Password">
+    <!-- ADD USER SECTION -->
+    <div class="section">
+        <div class="section-title">🔐 user management</div>
+        <div class="input-group">
+            <input type="text" id="username" placeholder="New Username" autocomplete="off">
+            <input type="password" id="password" placeholder="New Password" autocomplete="new-password">
+            <button class="btn" id="btn" onclick="addUser()">➕ ADD USER</button>
+            <div class="loader" id="loader">⏳ processing...</div>
+            <p id="msg"></p>
+        </div>
+    </div>
 
-<button onclick="addUser()">ADD USER</button>
+    <!-- PAYMENT APPROVAL SECTION -->
+    <div class="section">
+        <div class="list-header">
+            <span class="section-title" style="margin-bottom:0; border-bottom: none;">💳 payments</span>
+            <button class="btn-small" onclick="loadPayments()">⟳ refresh</button>
+        </div>
+        <div id="paymentListContainer">
+            <div class="payment-list" id="paymentList">
+                <div class="empty-message">click "refresh" to load payments</div>
+            </div>
+        </div>
+    </div>
 
-<p id="msg"></p>
+    <div class="footer-note">admin panel • tyrex_ksh md</div>
 </div>
 
 <script>
-function addUser(){
-const username = document.getElementById("username").value;
-const password = document.getElementById("password").value;
+    // ----- ADD USER -----
+    async function addUser() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const msg = document.getElementById('msg');
+        const btn = document.getElementById('btn');
+        const loader = document.getElementById('loader');
 
-fetch("/add-user", {
-method: "POST",
-headers: {
-"Content-Type": "application/json"
-},
-body: JSON.stringify({ username, password })
-})
-.then(res => res.json())
-.then(data => {
-document.getElementById("msg").innerText = data.message;
+        msg.innerText = '';
+        msg.className = '';
 
-if(data.success){
-document.getElementById("username").value = "";
-document.getElementById("password").value = "";
-}
-});
-}
+        if (!username || !password) {
+            msg.className = 'error';
+            msg.innerText = '❌ Fill all fields first!';
+            return;
+        }
+
+        btn.disabled = true;
+        loader.style.display = 'block';
+
+        try {
+            const res = await fetch('/add-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                msg.className = 'success';
+                msg.innerText = data.message || '✅ User created successfully!';
+                document.getElementById('username').value = '';
+                document.getElementById('password').value = '';
+            } else {
+                msg.className = 'error';
+                msg.innerText = data.message || '❌ Failed to create user';
+            }
+        } catch (err) {
+            msg.className = 'error';
+            msg.innerText = '⚠️ Server error!';
+        }
+
+        btn.disabled = false;
+        loader.style.display = 'none';
+    }
+
+    // ----- PAYMENT FUNCTIONS -----
+    async function loadPayments() {
+        const list = document.getElementById('paymentList');
+        list.innerHTML = '<div style="text-align:center; padding:10px; color:rgba(255,255,255,0.4);">⏳ loading...</div>';
+
+        try {
+            const res = await fetch('/payments');
+            const data = await res.json();
+
+            if (!Array.isArray(data) || data.length === 0) {
+                list.innerHTML = `<div class="empty-message">📭 no payments found</div>`;
+                return;
+            }
+
+            // sort: pending first, then approved (optional)
+            const sorted = data.sort((a, b) => {
+                if (a.status === 'pending' && b.status !== 'pending') return -1;
+                if (a.status !== 'pending' && b.status === 'pending') return 1;
+                return 0;
+            });
+
+            list.innerHTML = sorted.map(p => {
+                const statusClass = p.status === 'approved' ? 'status-approved' : 'status-pending';
+                const statusLabel = p.status ? p.status.toUpperCase() : 'PENDING';
+                const isApproved = p.status === 'approved';
+                const id = p._id || p.id || '';
+
+                return `
+                    <div class="payment-item">
+                        <div class="payment-info">
+                            <span class="payment-user">👤 ${p.user || 'unknown'}</span>
+                            <span class="payment-status">
+                                <span class="status-badge ${statusClass}">${statusLabel}</span>
+                                ${p.amount ? `• ${p.amount} TZS` : ''}
+                                ${p.date ? `• ${new Date(p.date).toLocaleDateString()}` : ''}
+                            </span>
+                        </div>
+                        <div class="payment-actions">
+                            ${!isApproved ? `<button class="btn-approve" id="approve_${id}" onclick="approvePayment('${id}')">✓ approve</button>` : 
+                            `<span style="font-size:13px; opacity:0.5;">✔ approved</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+        } catch (err) {
+            list.innerHTML = `<div class="empty-message" style="color:#ff4d6d;">⚠️ error loading payments</div>`;
+            console.warn('fetch /payments error:', err);
+        }
+    }
+
+    async function approvePayment(id) {
+        if (!id) {
+            console.warn('approvePayment: missing id');
+            return;
+        }
+
+        // disable button to prevent double click
+        const btn = document.getElementById(`approve_${id}`);
+        if (btn) btn.disabled = true;
+
+        try {
+            const res = await fetch('/approve', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+
+            if (!res.ok) throw new Error('approve failed');
+
+            // reload list after approval
+            await loadPayments();
+        } catch (err) {
+            console.error('approve error:', err);
+            // re-enable button if still exists
+            if (btn) btn.disabled = false;
+            // optional: show toast or alert
+        }
+    }
+
+    // initial load when page opens
+    window.addEventListener('DOMContentLoaded', () => {
+        // load payments after a tiny delay to ensure UI is ready
+        setTimeout(loadPayments, 300);
+    });
 </script>
 
 </body>
