@@ -1,0 +1,24 @@
+{
+  "name": "tyrex-ksh-md",
+  "description": "TYREX_KSH MD SaaS System",
+  "version": "1.0.0",
+  "env": {
+    "NODE_ENV": {
+      "description": "Production environment",
+      "value": "production"
+    },
+    "SESSION_SECRET": {
+      "description": "Session secret key",
+      "value": "tyrex_secret_2026"
+    },
+    "MONGO_URL": {
+      "description": "MongoDB connection string",
+      "required": true
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
