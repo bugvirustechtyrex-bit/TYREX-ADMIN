@@ -1,0 +1,32 @@
+{
+  "name": "TYREX KSH MD",
+  "description": "TYREX KSH MD Payment System with Admin Panel",
+  "repository": "https://github.com/bugvirustech/tyrex-bit",
+  "logo": "https://node-js-sample.herokuapp.com/node.png",
+  "keywords": ["node", "express", "mongoose", "payment", "tyrex"],
+  "env": {
+    "MONGO_URL": {
+      "description": "MongoDB Connection String",
+      "required": true
+    },
+    "SESSION_SECRET": {
+      "description": "Session Secret Key",
+      "generator": "secret"
+    },
+    "NODE_ENV": {
+      "description": "Node Environment",
+      "value": "production"
+    }
+  },
+  "addons": [
+    "mongodb"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "scripts": {
+    "postdeploy": "npm run start"
+  }
+}
