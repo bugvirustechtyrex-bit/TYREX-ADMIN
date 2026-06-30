@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TYREX</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0b0b1a;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .dashboard {
+            max-width: 600px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 40px 30px;
+            box-shadow: 0 0 50px #ffcc0030;
+            border: 1px solid rgba(255, 204, 0, 0.15);
+            text-align: center;
+        }
+        h2 {
+            color: #ffcc00;
+            font-size: 28px;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px #ffcc0060;
+        }
+        .subtitle {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.08);
+            padding-bottom: 18px;
+        }
+        .welcome {
+            font-size: 22px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+        .welcome span {
+            color: #ffcc00;
+        }
+        .info-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .info-box p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .btn-logout {
+            padding: 12px 40px;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #ff4d6d, #e63946);
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.25s;
+            box-shadow: 0 8px 25px #ff4d6d30;
+        }
+        .btn-logout:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px #ff4d6d50;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.12);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 18px;
+        }
+        .footer span {
+            color: #ffcc0060;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <h2>🚀 TYREX</h2>
+        <div class="subtitle">user dashboard</div>
+        <div class="welcome">Welcome, <span id="usernameDisplay">User</span>!</div>
+        <div class="info-box">
+            <p>✅ Your payment has been verified.</p>
+            <p>🎯 You now have full access to all features.</p>
+            <p style="margin-top:10px; color:rgba(255,255,255,0.3);">Bot access granted • next upgrade coming soon</p>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 LOGOUT</button>
+        <div class="footer">TYREX <span>·</span> secure access</div>
+    </div>
+    <script>
+        // Get username from session via a simple endpoint or from page load
+        // For now, we'll just show a placeholder
+        document.getElementById('usernameDisplay').textContent = 'User';
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+    </script>
+</body>
+</html>
