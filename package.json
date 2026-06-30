@@ -4,8 +4,7 @@
   "description": "TYREX_KSH MD Pair Code Login System",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server.js"
   },
   "keywords": [
     "tyrex",
