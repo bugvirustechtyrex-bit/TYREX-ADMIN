@@ -1,39 +1,333 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TYREX LOGIN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b1a;
+            color: #fff;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(12px);
+            border-radius: 36px;
+            padding: 40px 30px 44px;
+            box-shadow: 0 0 50px #ffcc0030, 0 0 100px #ffcc0015;
+            border: 1px solid rgba(255, 204, 0, 0.15);
+            text-align: center;
+            transition: 0.3s;
+        }
+
+        .login-card:hover {
+            box-shadow: 0 0 60px #ffcc0040, 0 0 120px #ffcc0020;
+        }
+
+        h2 {
+            color: #ffcc00;
+            font-size: 30px;
+            letter-spacing: 4px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 0 25px #ffcc0060;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 14px;
+            letter-spacing: 1.5px;
+            margin-bottom: 32px;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.08);
+            padding-bottom: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.8px;
+            margin-bottom: 5px;
+            padding-left: 4px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.06);
+            color: white;
+            font-size: 16px;
+            transition: 0.25s;
+            outline: 1px solid transparent;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: 1px solid #ffcc00;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 20px #ffcc0015;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+            font-weight: 300;
+            font-size: 15px;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 16px 10px;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #ffcc00, #f5b800);
+            color: #0b0b1a;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 8px 25px #ffcc0030;
+            margin-top: 10px;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 12px 35px #ffcc0050;
+            background: linear-gradient(135deg, #ffd633, #ffcc00);
+        }
+
+        .btn-login:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+            background: #444;
+            color: #888;
+        }
+
+        #msg {
+            margin-top: 22px;
+            font-size: 15px;
+            min-height: 28px;
+            font-weight: 500;
+            padding: 10px 12px;
+            border-radius: 30px;
+            transition: 0.25s;
+        }
+
+        .msg-success {
+            color: #00ff95;
+            background: rgba(0, 255, 149, 0.08);
+            border: 1px solid rgba(0, 255, 149, 0.15);
+        }
+
+        .msg-error {
+            color: #ff4d6d;
+            background: rgba(255, 77, 109, 0.08);
+            border: 1px solid rgba(255, 77, 109, 0.15);
+        }
+
+        .msg-info {
+            color: #ffcc00;
+            background: rgba(255, 204, 0, 0.08);
+            border: 1px solid rgba(255, 204, 0, 0.15);
+        }
+
+        .footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.12);
+            letter-spacing: 1.5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
+            padding-top: 18px;
+        }
+
+        .footer span {
+            color: #ffcc0060;
+        }
+
+        .loader-dots {
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        .loader-dots::after {
+            content: '';
+            animation: dots 1.2s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        @media (max-width: 420px) {
+            .login-card {
+                padding: 28px 18px 32px;
+            }
+            h2 {
+                font-size: 26px;
+            }
+            input {
+                font-size: 15px;
+                padding: 12px 16px;
+            }
+            .btn-login {
+                font-size: 16px;
+                padding: 14px 10px;
+            }
+        }
+    </style>
 </head>
-<body style="background:#111;color:white;text-align:center;">
+<body>
+    <div class="login-card">
 
-<h2>TYREX LOGIN</h2>
+        <h2>⚡ TYREX</h2>
+        <div class="subtitle">secure access</div>
 
-<input id="username" placeholder="Username"><br><br>
-<input id="password" type="password" placeholder="Password"><br><br>
+        <div class="input-group">
+            <label for="username">👤 username</label>
+            <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+        </div>
 
-<button onclick="login()">Login</button>
+        <div class="input-group">
+            <label for="password">🔒 password</label>
+            <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+        </div>
 
-<p id="msg"></p>
+        <button class="btn-login" id="loginBtn" onclick="handleLogin()">🔓 LOGIN</button>
 
-<script>
-function login(){
-fetch("/login",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-username:document.getElementById("username").value,
-password:document.getElementById("password").value
-})
-})
-.then(r=>r.json())
-.then(d=>{
-if(d.success){
-window.location.href=d.redirect;
-}else{
-document.getElementById("msg").innerText=d.message;
-}
-});
-}
-</script>
+        <div id="msg"></div>
+
+        <div class="footer">TYREX <span>·</span> admin panel</div>
+    </div>
+
+    <script>
+        const msgEl = document.getElementById('msg');
+        const loginBtn = document.getElementById('loginBtn');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+
+        // allow Enter key to trigger login
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const active = document.activeElement;
+                if (active === usernameInput || active === passwordInput) {
+                    e.preventDefault();
+                    handleLogin();
+                }
+            }
+        });
+
+        async function handleLogin() {
+            // clear previous message
+            msgEl.innerText = '';
+            msgEl.className = '';
+
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // basic validation
+            if (!username || !password) {
+                msgEl.innerText = '❌ Please fill in all fields';
+                msgEl.className = 'msg-error';
+                return;
+            }
+
+            // disable button and show loading state
+            loginBtn.disabled = true;
+            loginBtn.innerText = '⏳ LOADING...';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+
+                // handle non-json responses gracefully
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    const text = await response.text();
+                    throw new Error(text || 'Server returned non-JSON response');
+                }
+
+                // check for success and redirect
+                if (data.success === true) {
+                    // show success briefly before redirect
+                    msgEl.innerText = data.message || '✅ Login successful! Redirecting...';
+                    msgEl.className = 'msg-success';
+
+                    // redirect after a tiny delay to show message
+                    const redirectUrl = data.redirect || '/admin';
+                    setTimeout(() => {
+                        window.location.href = redirectUrl;
+                    }, 400);
+                } else {
+                    // login failed
+                    const errorMsg = data.message || data.msg || '❌ Invalid credentials';
+                    msgEl.innerText = errorMsg;
+                    msgEl.className = 'msg-error';
+                }
+
+            } catch (err) {
+                console.error('Login error:', err);
+                msgEl.innerText = '⚠️ ' + (err.message || 'Connection error. Please try again.');
+                msgEl.className = 'msg-error';
+            } finally {
+                // re-enable button and restore text
+                loginBtn.disabled = false;
+                loginBtn.innerText = '🔓 LOGIN';
+            }
+        }
+
+        // optional: clear message on input focus
+        usernameInput.addEventListener('focus', () => {
+            msgEl.innerText = '';
+            msgEl.className = '';
+        });
+        passwordInput.addEventListener('focus', () => {
+            msgEl.innerText = '';
+            msgEl.className = '';
+        });
+    </script>
 
 </body>
 </html>
