@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TYREX_KSH MD | Admin Panel</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background:linear-gradient(135deg,#020617,#0b1026);
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+width:380px;
+padding:30px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border-radius:20px;
+box-shadow:0 0 25px #ffcc0055;
+text-align:center;
+}
+
+h2{
+color:#ffcc00;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:none;
+border-radius:10px;
+outline:none;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#ffcc00;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+background:#ffd633;
+}
+
+#msg{
+margin-top:10px;
+color:#00ff95;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+<h2>ADMIN PANEL</h2>
+
+<input type="text" id="username" placeholder="New Username">
+<input type="text" id="password" placeholder="New Password">
+
+<button onclick="addUser()">ADD USER</button>
+
+<p id="msg"></p>
+</div>
+
+<script>
+function addUser(){
+const username = document.getElementById("username").value;
+const password = document.getElementById("password").value;
+
+fetch("/add-user", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({ username, password })
+})
+.then(res => res.json())
+.then(data => {
+document.getElementById("msg").innerText = data.message;
+
+if(data.success){
+document.getElementById("username").value = "";
+document.getElementById("password").value = "";
+}
+});
+}
+</script>
+
+</body>
+</html>
