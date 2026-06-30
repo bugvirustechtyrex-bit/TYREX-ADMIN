@@ -1,38 +1,328 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>TYREX PAYMENT</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TYREX PAYMENT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0b0b1a;
+            color: white;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .payment-card {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border-radius: 36px;
+            padding: 35px 28px 40px;
+            box-shadow: 0 0 50px #ffcc0030, 0 0 100px #ffcc0015;
+            border: 1px solid rgba(255, 204, 0, 0.15);
+            text-align: center;
+            transition: 0.25s;
+        }
+
+        .payment-card:hover {
+            box-shadow: 0 0 60px #ffcc0040, 0 0 120px #ffcc0020;
+        }
+
+        h2 {
+            color: #ffcc00;
+            font-size: 28px;
+            letter-spacing: 3px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 0 20px #ffcc0060;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            letter-spacing: 1px;
+            margin-bottom: 28px;
+            border-bottom: 1px solid rgba(255, 204, 0, 0.1);
+            padding-bottom: 18px;
+        }
+
+        .amount-box {
+            background: rgba(255, 204, 0, 0.07);
+            border-radius: 20px;
+            padding: 18px 10px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 204, 0, 0.1);
+        }
+
+        .amount-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+        }
+
+        .amount-value {
+            font-size: 42px;
+            font-weight: 700;
+            color: #ffcc00;
+            text-shadow: 0 0 30px #ffcc0040;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+
+        .amount-value small {
+            font-size: 20px;
+            font-weight: 400;
+            opacity: 0.7;
+        }
+
+        .number-section {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 20px;
+            padding: 20px 10px;
+            margin-bottom: 30px;
+            border: 1px dashed rgba(255, 204, 0, 0.2);
+        }
+
+        .number-label {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .tigo-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #ffcc00, #ffd966);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 40px #ffcc0030;
+        }
+
+        .payment-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            margin: 20px 0 16px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-pay {
+            width: 100%;
+            padding: 16px 10px;
+            border: none;
+            border-radius: 60px;
+            background: linear-gradient(135deg, #ffcc00, #f5b800);
+            color: #0b0b1a;
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 1.5px;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 8px 25px #ffcc0030;
+            margin-top: 4px;
+        }
+
+        .btn-pay:hover:not(:disabled) {
+            transform: scale(1.02);
+            box-shadow: 0 12px 35px #ffcc0050;
+            background: linear-gradient(135deg, #ffd633, #ffcc00);
+        }
+
+        .btn-pay:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
+        .btn-pay:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+            background: #444;
+            color: #888;
+        }
+
+        #msg {
+            margin-top: 22px;
+            font-size: 15px;
+            min-height: 28px;
+            font-weight: 500;
+            padding: 8px 10px;
+            border-radius: 30px;
+            transition: 0.2s;
+        }
+
+        .msg-success {
+            color: #00ff95;
+            background: rgba(0, 255, 149, 0.08);
+            border: 1px solid rgba(0, 255, 149, 0.15);
+        }
+
+        .msg-error {
+            color: #ff4d6d;
+            background: rgba(255, 77, 109, 0.08);
+            border: 1px solid rgba(255, 77, 109, 0.15);
+        }
+
+        .msg-info {
+            color: #ffcc00;
+            background: rgba(255, 204, 0, 0.08);
+            border: 1px solid rgba(255, 204, 0, 0.15);
+        }
+
+        .loader-dots {
+            display: inline-block;
+            margin-left: 6px;
+        }
+
+        .loader-dots::after {
+            content: '';
+            animation: dots 1.2s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+
+        .footer {
+            margin-top: 28px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 1.5px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            padding-top: 18px;
+        }
+
+        .footer span {
+            color: #ffcc0060;
+        }
+
+        @media (max-width: 420px) {
+            .payment-card {
+                padding: 24px 16px 30px;
+            }
+            .amount-value {
+                font-size: 34px;
+            }
+            .tigo-number {
+                font-size: 26px;
+            }
+            .btn-pay {
+                font-size: 16px;
+                padding: 14px 10px;
+            }
+        }
+    </style>
 </head>
-<body style="background:#0b0b1a;color:white;text-align:center;">
+<body>
+    <div class="payment-card">
 
-<h2>PAYMENT REQUIRED</h2>
+        <h2>💳 TYREX</h2>
+        <div class="subtitle">complete your payment</div>
 
-<p>Amount: <b>TZS 2000</b></p>
+        <div class="amount-box">
+            <div class="amount-label">amount due</div>
+            <div class="amount-value">2,000 <small>TZS</small></div>
+        </div>
 
-<h3>Tigo Pesa Number</h3>
-<h1>+255650583044</h1>
+        <div class="number-section">
+            <div class="number-label">📱 tigo pesa number</div>
+            <div class="tigo-number">+255 650 583 044</div>
+        </div>
 
-<p>After payment click below</p>
+        <div class="payment-hint">after sending, confirm your payment</div>
 
-<button onclick="request()">I Have Paid</button>
+        <button class="btn-pay" id="payBtn" onclick="requestPayment()">✅ I HAVE PAID</button>
 
-<p id="msg"></p>
+        <div id="msg"></div>
 
-<script>
-function request(){
-fetch("/pay-request",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-userId:"TEMP_USER"
-})
-})
-.then(r=>r.json())
-.then(d=>{
-document.getElementById("msg").innerText=d.msg;
-});
-}
-</script>
+        <div class="footer">TYREX <span>·</span> secure payment</div>
+    </div>
+
+    <script>
+        const msgEl = document.getElementById('msg');
+        const payBtn = document.getElementById('payBtn');
+
+        async function requestPayment() {
+            // clear previous message
+            msgEl.innerText = '';
+            msgEl.className = '';
+
+            // disable button and show loading state
+            payBtn.disabled = true;
+            payBtn.innerText = '⏳ PROCESSING...';
+
+            try {
+                const response = await fetch('/pay-request', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: 'TEMP_USER'
+                    })
+                });
+
+                // handle non-json responses gracefully
+                let data;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    data = await response.json();
+                } else {
+                    // if server returns plain text or error
+                    const text = await response.text();
+                    throw new Error(text || 'Server returned non-JSON response');
+                }
+
+                // show server message
+                const serverMsg = data.msg || data.message || 'Request received.';
+                msgEl.innerText = serverMsg;
+
+                // style based on success flag or status
+                if (data.success === true || data.status === 'success') {
+                    msgEl.className = 'msg-success';
+                } else if (data.success === false || data.status === 'error') {
+                    msgEl.className = 'msg-error';
+                } else {
+                    // fallback: if no explicit success, treat as info
+                    msgEl.className = 'msg-info';
+                }
+
+            } catch (err) {
+                console.error('Payment request error:', err);
+                msgEl.innerText = '⚠️ ' + (err.message || 'Something went wrong. Please try again.');
+                msgEl.className = 'msg-error';
+            } finally {
+                // re-enable button and restore text
+                payBtn.disabled = false;
+                payBtn.innerText = '✅ I HAVE PAID';
+            }
+        }
+
+        // optional: reset message on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            msgEl.innerText = '';
+            msgEl.className = '';
+        });
+    </script>
 
 </body>
 </html>
